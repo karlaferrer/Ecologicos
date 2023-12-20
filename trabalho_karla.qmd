@@ -18,24 +18,31 @@ csl: epidemiology.csl
 
 **Rio de Janeiro, dezembro de 2023.**
 
-# **Breve contexto**
+# **Introdução**
 
 A doença por coronavírus 2019 (COVID-19) é um agravo infecioso altamente contagioso causado pelo Coronavírus da Síndrome Respiratória Aguda Grave 2, que foi responsável por 6,9 milhões de mortes em todo o mundo [@chilamakuri2021; @rahman2021]. Devido à gravidade da pandemia, o desenvolvimento e o uso de vacinas para o controle da doença aconteceram de forma muito rápida, sem precedentes na história [@rudolph2022]. A eficácia e a segurança das vacinas foram amplamente demonstradas nos ensaios clínicos randomizados, no entanto, o monitoramento contínuo dos eventos adversos é necessário para a avaliação periódica da relação benefício-risco desses produtos [@polack2020a ; @sadoff2021 ; @voysey2021 ; @lavertu2021].
 
-De acordo com a Organização Mundial da Saúde, os EAIE são eventos clinicamente significativos préidentificados e predefinidos que têm potencial de estarem causalmente associados à vacina que precisam ser cuidadosamente monitorados e confirmados por outros estudos [@worldhealthorganization]. As condições comumente consideradas como EAIE incluem eventos graves que já foram vistos com outras vacinas, eventos graves potencialmente associados a novas plataformas, eventos graves potencialmente relacionados a adjuvantes, eventos graves relacionados à falha da imunogenicidade da vacina ou eventos potencialmente específicos para populações especiais [@fundaçãooswaldocruz2023]. A lista de EAIE que devem ser monitorados na vacinação contra a COVID-19 foi publicada pela *Brighton Collaboration* (BC) e recomendada pela OMS [@law2020; @fraiman2022; @brightoncollaboration2022].
+De acordo com a Organização Mundial da Saúde (OMS), os eventos adversos de interesse especial (EAIE) são eventos clinicamente significativos pré-identificados e predefinidos que têm potencial de estarem causalmente associados à vacina que precisam ser cuidadosamente monitorados e confirmados por outros estudos [@worldhealthorganization]. As condições comumente consideradas como EAIE incluem eventos graves que já foram vistos com outras vacinas, eventos graves potencialmente associados a novas plataformas, eventos graves potencialmente relacionados a adjuvantes, eventos graves relacionados à falha da imunogenicidade da vacina ou eventos potencialmente específicos para populações especiais [@fundaçãooswaldocruz2023]. A lista de EAIE que devem ser monitorados na vacinação contra a COVID-19 foi publicada pela *Brighton Collaboration* (BC) e recomendada pela OMS [@law2020; @fraiman2022; @brightoncollaboration2022].
+
+# **Objetivos**
+
+-   Descrever a ocorrência internações hospitalares no SUS correspondentes aos EAIE graves no período anterior à vacinação e avaliar os efeitos da introdução da vacinação sobre a distribuição temporal desses eventos.
+
+-   Analisar a distribuição espacial dos EAIE no Brasil por unidade da federação no período de 2015 a 2022.
 
 # **Métodos**
 
-Na primeira parte do trabalho, o objetivo é descrever a ocorrência internações hospitalares no SUS correspondentes aos EAIE graves no período anterior à vacinação e avaliar os efeitos da introdução da vacinação sobre a distribuição temporal desses eventos. A população do estudo é formada por adultos hospitalizados com 18 anos ou mais e o período de análise foi de janeiro de 2015 a dezembro de 2022. 
+Trata-se de um estudo com desenho ecológico exploratório de série temporal. A população de interesse é formada por adultos hospitalizados com 18 anos ou mais e o período de análise foi de janeiro de 2015 a dezembro de 2022.
 
-Para verificar se a introdução da vacinação contra a COVID-19 resultou em aumento do número de internações relacionadas aos EAIE, aplicou-se o método de análise de séries temporais interrompidas (STI) com modelo ARIMA. Esse tipo de desenho, comumente utilizado para avaliação de efetividade de intervenções em saúde em nível populacional, é considerado uma boa abordagem para avaliação de causalidade quando estudos randomizados não são factíveis. A análise se baseia na verificação da tendência existente na série de casos antes da intervenção para determinar um comportamento esperado no período pós-intervenção, referido usualmente como contrafactual (o que teria ocorrido caso não houvesse a intervenção). Este cenário hipotético é utilizado como comparador para avaliação do impacto da intervenção [@lopezbernal2016 ; @schaffer2021 ; @gianacas2023]. 
+Para verificar se a introdução da vacinação contra a COVID-19 resultou em aumento do número de internações relacionadas aos EAIE, aplicou-se o método de análise de séries temporais interrompidas (STI) com modelo ARIMA. Esse tipo de desenho, comumente utilizado para avaliação de efetividade de intervenções em saúde em nível populacional, é considerado uma boa abordagem para avaliação de causalidade quando estudos randomizados não são factíveis. A análise se baseia na verificação da tendência existente na série de casos antes da intervenção para determinar um comportamento esperado no período pós-intervenção, referido usualmente como contrafactual (o que teria ocorrido caso não houvesse a intervenção). Este cenário hipotético é utilizado como comparador para avaliação do impacto da intervenção [@lopezbernal2016 ; @schaffer2021 ; @gianacas2023].
 
-A variável de desfecho foi definida como o total de EAIE graves por 100.000 internações/mês. O início da intervenção foi janeiro de 2021, quando foi iniciada a campanha de vacinação no Brasil. No modelo foram incluídas covariáveis para indicar o início da pandemia, bem como o início da intervenção na série temporal [@schaffer2021].   
+A variável de desfecho foi definida como o total de EAIE graves por 100.000 internações/mês. O início da intervenção foi janeiro de 2021, quando foi iniciada a campanha de vacinação no Brasil.
+
+Foi utilizado o algoritmo automatizado, auto.arima() do pacote *forecast* do R para identificação dos termos do modelo ARIMA com todas as observações da série (96 meses). Foram incluídas covariáveis para indicar o início da pandemia, bem como o início da intervenção na série temporal via funções de transferência *step* e *ramp* [@schaffer2021]. O modelo com menor AIC ou BIC selecionado pelo método foi (2,1,0)x(0,1,1)˜12˜. Um segundo modelo com os mesmos termos foi ajustado para obtenção do contrafactual apenas com as observações anteriores ao início da vacinação (72 meses).
 
 Na segunda parte, será
 
 As condições (subcategorias CID) correspondentes aos EAIE encontram-se listadas no Anexo. Esses CID foram pesquisados nos campos de diagnóstico principal e diagnóstico secundário das Autorizações de Internação Hospitalar do SUS no período analisado.
-
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -51,8 +58,6 @@ library(kableExtra)
 # ler arquivo
 df <- read.csv("/Users/karlaferreira/Documents/Ensp 2023/bsts_its/BD_maior18_3.csv")
 str(df)
-
-# Organizar ---------------------------------------------------------------
 
 library(tidyverse)
 library(DescTools)
@@ -99,10 +104,7 @@ dft.2$taxa <- as.numeric(dft.2$taxa)
 
 ```
 
-
 ```{r exploratoria}
-# Exploratoria ------------------------------------------------------------
-
 library(ggplot2)
 
 # Histogram by sex in ggplot2
@@ -122,26 +124,31 @@ df |>
   filter(IDADE > 100) |> 
   summarize(total = n())
 
+#data frame para distintas internacoes 
+df2 <-  df |> 
+  distinct (N_AIH, sex, IDADE, fx_eta, regiao, MORTE)
+
 #Freq. by regiao
-df |> 
+df2 |> 
   group_by(regiao) |> 
   summarize(total = n(), perc = (n()/tot)*100 )
 
 #Freq. by sex
-df |> 
+df2 |> 
   group_by(sex) |> 
   summarize(total = n(), perc = (n()/tot)*100 )
 
 #Freq. by faixa etaria
-df |> 
+df2 |> 
   group_by(fx_eta) |> 
   summarize(total = n(), perc = (n()/tot)*100 )
+
 
 
 #Table 1 by sex
 library(gtsummary)
 library(gt)
-table1 <- df |> 
+table1 <- df2 |> 
   tbl_summary(by = sex, include = c(IDADE,fx_eta, regiao, MORTE))  |> #,
               #digits = ~ function (x){
               #style_number(x,big.mark = ".", decimal.mark = ",")                                                                 
@@ -173,13 +180,19 @@ length(unique(df$N_AIH))
 #EAIE por internacao
 length(df$N_AIH)/length(unique(df$N_AIH))
 
+#N_AIH distintos
+
 ```
+
 ```{r st}
 #objeto serie temporal
 library(forecast)
 dft.ts <- ts(dft.2$taxa, start = c(2015,1), frequency = 12)
-plot1 <- autoplot(dft.ts, ylab = "EAIE/100.000 internações")
-         
+
+autoplot(dft.ts, ylab = "EAIE/100.000 internações") +
+  geom_vline(xintercept=as.numeric(as.Date("2021-01-18")), linetype=2, color = "gray")+
+  theme(text = element_text(size = 9))
+
 #Analise descritiva da serie
 length(dft.ts)
 range(dft.ts)
@@ -238,15 +251,14 @@ adf.test(dft.ts)
 #avaliando tendencia
 #lowes e regressao linear para visualizar tendencia
 library(Kendall)
-#jpeg(file="figures/total_ts.jpg", width = 15, height = 15, units = "cm", pointsize = 12,
-#     res = 600, quality = 85)
+jpeg(file="EAIEts.jpg", width = 15, height = 10, units = "cm", pointsize = 12, res = 600, quality = 85)
 plot(dft.ts, ylab = "EAIE/100.000 internações",
               xlab= "tempo")
-lines(lowess(time(dft.ts),dft.ts),lwd=3, col= "blue")
-abline(reg=lm(dft.ts ~ time(dft.ts)), col = "red")
-# Add vertical line indicating date of intervention (January 1, 2014)
+#lines(lowess(time(dft.ts),dft.ts),lwd=3, col= "blue")
+#abline(reg=lm(dft.ts ~ time(dft.ts)), col = "red")
+# Add vertical line indicating date of intervention
 abline(v=2021, col="gray", lty="dashed", lwd=2)
-#dev.off()
+dev.off()
 
 #tendencia pela media anual
 plot(aggregate(dft.ts, FUN=mean))
@@ -318,13 +330,17 @@ coeftest(arima1)
 # Check residuals
 checkresiduals(arima1)
 
+jpeg(file="tsdiag1.jpg", width = 10, height = 15, units = "cm", pointsize = 12,res = 600, quality = 85)
+tsdiag(arima1)
+dev.off()
+
 # Estimate parameters and confidence intervals
 summary(arima1)
 confint(arima1)
 
 #H0: there is no signicant autocorrelation
 Box.test(arima1$residuals, lag = 24, type = "Ljung-Box")
-#tsdiag(arima1)
+
 
 # To forecast the counterfactual, model data excluding post-intervention time period
 arima2 <- Arima(window(dft.ts, end=c(2020,12)), order=c(2,1,0), seasonal=list(order=c(0,1,1), period=12))
@@ -333,6 +349,15 @@ arima2 <- Arima(window(dft.ts, end=c(2020,12)), order=c(2,1,0), seasonal=list(or
 fc <- forecast(arima2, h=24)
 fc.ts <- ts(as.numeric(fc$mean), start=c(2021,1), frequency=12)
 
+#check residuals arima2
+checkresiduals(arima2)
+qqnorm(arima2$residuals)
+
+jpeg(file="tsdiag2.jpg", width = 10, height = 15, units = "cm", pointsize = 12,res = 600, quality = 85)
+tsdiag(arima2)
+dev.off()
+
+
 # Combine with observed data
 dft.ts.2 <- ts.union(dft.ts, fc.ts)
 dft.ts.2
@@ -340,22 +365,45 @@ dft.ts.2
 mape_arima <- as.data.frame(dft.ts.2[73:96,])
 mape_arima |>  
   summarise(mape_arima2=(mean(abs(dft.ts-fc.ts)/dft.ts)*100))
-# mape arima pós intervenção: 5.949595
+# mape arima pós intervenção: 4.23
+#indica a diferenca media entre observado e esperado em porc.
 
 # Plot
-jpeg(file="arima.jpg", width = 15, height = 10, units = "cm", pointsize = 12,
-    res = 600, quality = 85)
+jpeg(file="arima.jpg", width = 15, height = 10, units = "cm", pointsize = 12,res = 600, quality = 85)
 plot(dft.ts.2, type="l", plot.type="s", col=c('blue','red'),      ylab="EAIE/100.000 int.", linetype=c("solid","dashed"))
 abline(v=2021, lty="dashed", col="gray", main = " Contrafactual ARIMA")
 dev.off()
+
+#residuals histogram
+# Histogram with density plot
+
+#hist arima1
+plot61 <- ggplot(arima1$residuals, aes(x=arima1$residuals)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="cyan4") +
+  labs(x= "resíduos série completa", y = "densidade") +
+  theme(axis.text = element_text(size = 3))+
+  theme_classic()
+
+#hist arima2
+plot62 <-ggplot(arima1$residuals, aes(x=arima1$residuals)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666") +
+  labs(x= "resíduos contrafactual", y = "densidade") +
+  theme(text = element_text(size = 5))+
+  theme_classic()
+
+library(gridExtra)
+plot6 <- grid.arrange(plot61, plot62, ncol = 2)
+ggsave("histogram.jpg",plot6, dpi=300)
 
 ```
 
 # **Resultados**
 
-## Análise de série temporal 
+## Análise de série temporal
 
-No período de janeiro de 2015 a dezembro de 2017 ocorreram 3.735.180 EAIE graves em um total de 3.627.942 internações (1,02 EAIE por internação). A idade mediana na amostra é de 64 anos (IQT: 52-74), com 60% do pacientes com idade superior ou igual a 60 anos e 52,7% do sexo masculino. O período de análise compreende 96 meses sendo o valor mínimo de 4.060 EAIE por 100.000 internações observado em março de 2015 e o valor máximo em agosto de 2020 (5.760/100.000), com média de 4.892.
+No período de janeiro de 2015 a dezembro de 2017 ocorreram 3.735.180 EAIE graves em um total de 3.627.942 internações (1,02 EAIE por internação). A idade mediana na amostra é de 63 anos (IIQ: 51-76), com 60% do pacientes com idade superior ou igual a 60 anos e 53,7% do sexo masculino. O período de análise compreende 96 meses sendo o valor mínimo de 4.060 EAIE por 100.000 internações observado em março de 2015 e o valor máximo em agosto de 2020 (5.760/100.000), com média de 4.892/100.000.
 
 A @fig-Figura1 apresenta a taxa mensal de EAIE graves para a vacinação contra a COVID-19 por 100.000 internações no período de análise. A série apresenta componente de sazonalidade com a maior parte dos casos ocorrendo no fim de cada ano, com exceção dos anos de 2020 e 2021 que apresentam pico de casos no meio do ano. O gráfico também indica a presença de tendência com evidente aumento dos casos no período observado.
 
@@ -363,16 +411,19 @@ A @fig-Figura1 apresenta a taxa mensal de EAIE graves para a vacinação contra 
 #| label: fig-Figura1
 #| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 por 100.000 internações no SUS no período de 2015 a 2022. A linha vertical indica o início da vacinação em adultos."
 #| out-width: "80%"
-plot1
+
+knitr::include_graphics("EAIEts.jpg", dpi=600)
 
 ```
 
-A @fig-Figura2 apresenta a decomposição da série temporal da taxa mensal de EAIE graves pelo método STL (*Seasonal and Trend decomposition using Loess*). De acordo com as métricas de força do método, a tendência é um componente forte (0,94) e a sazonalidade é um componente de força intermediária (0,619). No componente gráfico da tendência, verifica-se o aumento da taxa de EAIE ao longo da série, com uma estabilização nos últimos anos. A @fig-Figura3 mostra a série original e a série recomposta pelo método STL. 
+A @fig-Figura2 apresenta a decomposição da série temporal da taxa mensal de EAIE graves pelo método STL (*Seasonal and Trend decomposition using Loess*). De acordo com as métricas de força do método, a tendência é um componente forte (0,94) e a sazonalidade é um componente de força intermediária (0,619). No componente gráfico da tendência, verifica-se o aumento da taxa de EAIE ao longo da série, com uma estabilização nos últimos anos. A @fig-Figura3 mostra a série original e a série recomposta pelo método STL.
 
 ```{r Figura2, include=TRUE}
 #| label: fig-Figura2
-#| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 e seus três componentes aditivos (tendência, sazonalidade e restante)"
-#| out-width: "80%"
+#| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 e seus três componentes aditivos (tendência, sazonalidade e restante.)"
+#| out-width: "15cm"
+#| out-height: "15cm"
+
 plot2
 
 ```
@@ -385,19 +436,55 @@ knitr::include_graphics("recomposed.jpg", dpi=600)
 
 ```
 
-A @fig-Figura4 compara as taxas de EAIE observadas na série com os valores preditos (na cor vermelha) pelo modelo ARIMA para o período posterior ao início da vacinação. Pelo gráfico verifica-se que não houve aumento de internações por EAIE em relação ao que seria esperado para o período. O efeito imediato da vacinação a partir de fevereiro de 2023 foide -194,4 EAIE por 100.000 internações (IC 95% -404,2;15,4), seguido de uma diminuição sustentada de 1,4/100.000 (IC95%: -32,6;29,9) por mês até dezembro de 2022. De acordo com o contrafactual definido pelo modelo ARIMA, não há diferença estatisticamente significante entre os períodos pré e pós vacinação com relação à hospitalização pelos EAIE. 
-
-Esse resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, no entanto ainda seriam necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
-
-Os resultados relativos à qualidade do ajuste do modelo encontram-se .....
+A @fig-Figura4 compara as taxas de EAIE observadas na série com os valores preditos (na cor vermelha) pelo modelo ARIMA para o período posterior ao início da vacinação. Pelo gráfico verifica-se que não houve aumento de internações por EAIE em relação ao que seria esperado para o período. O efeito imediato da vacinação a partir de fevereiro de 2021 foi de -194,4 EAIE por 100.000 internações (IC 95% -404,2;15,4), seguido de uma diminuição sustentada de 1,4/100.000 (IC95%: -32,6;29,9) por mês até dezembro de 2022. De acordo com o contrafactual definido pelo modelo ARIMA, não há diferença estatisticamente significante entre os períodos pré e pós vacinação com relação a hospitalizações por condições correspondentes aos EAIE.
 
 ```{r Figura4, include=TRUE}
 #| label: fig-Figura4
-#| fig-cap: "Valores observados e valores preditos com base em um modelo ARIMA para a taxa de eventos adversos de interesse especial graves no SUS após o início da vacinação contra a COVID-19."
+#| fig-cap: "Valores observados e valores preditos com base no modelo ARIMA ARIMA(2,1,0)(0,1,1)[12] para a taxa de eventos adversos de interesse especial graves no SUS após o início da vacinação contra a COVID-19."
 #| out-width: "80%"
 knitr::include_graphics("arima.jpg", dpi=600)
 
 ```
+
+Os resultados relativos à qualidade do ajuste dos modelos ARIMA para a série completa e para o contrafactual encontram-se dispostos nas @fig-Figura5 e @fig-Figura6. Verifica-se que não há presença de autocorrelação em ambos os casos, no entanto, há observações atípicas que afetam o pressuposto de normalidade dos resíduos (@fig-Figura7). Destaca-se como atípico o mês de abril de 2020, logo após a declaração da COVID-19 como Emergência de Saúde Pública de Importância Internacional pela OMS.
+
+```{r Figura5, include=TRUE}
+#| label: fig-Figura5
+#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)[12] da série completa."
+#| out-width: "80%"
+knitr::include_graphics("tsdiag1.jpg", dpi=600)
+
+```
+
+```{r Figura6, include=TRUE}
+#| label: fig-Figura6
+#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)[12] do contrafactual."
+#| out-width: "80%"
+knitr::include_graphics("tsdiag2.jpg", dpi=600)
+
+```
+
+```{r Figura7, include=TRUE}
+#| label: fig-Figura7
+#| fig-cap: "Gráfico de densidade dos resíduos para os modelos ARIMA(2,1,0)(0,1,1)[12] - série completa e contrafactual."
+#| out-width: "80%"
+knitr::include_graphics("histogram.jpg", dpi=600)
+
+```
+
+## Análise espacial
+
+Ler o arquivo vetorial (.shp ou .gpkg) e/ou banco de dados pretendido
+criar Matriz de Vizinhança
+Análise exploratória Espacial (Mapas temáticos, autocorrelação espacial)
+Opcional: Modelagem (ex: SAR, CAR ou GWR)
+
+
+
+# **Discussão**
+
+O resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, uma vez que não foi verificado aumento significativo de um conjunto de eventos de interesse para monitoramento (EAIE). No entanto, ainda são necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
+
 
 \newpage
 
