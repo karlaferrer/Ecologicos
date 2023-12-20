@@ -72,7 +72,7 @@ df <- df |> mutate (sex = ifelse(SEXO == 1, "M", "F"))
 df <-df |> 
   mutate(fx_eta = cut(IDADE, breaks = c(18,39,60,100), right = FALSE))
 
-df <-df |> mutate (regiao0 = substr(as.character(UF_ZI), 1,2))
+df <-df |> mutate (regiao0 = substr(as.character(MUNIC_RES), 1,2))
 
 df$regiao <-  Recode(as.factor(df$regiao0),
                        "Norte" = c("11", "12","13", "14", "15", "16", "17"),
@@ -399,6 +399,20 @@ ggsave("histogram.jpg",plot6, dpi=300)
 
 ```
 
+```{r espacial}
+#total de EAIE por UF
+esp <- df |> 
+  group_by(regiao0, lubridate::year(data)) |> 
+  summarize(total = n())
+
+library(sf)
+uf.sf <- read_sf("/Users/karlaferreira/Documents/Ensp 2023/Ecologicos/BR_UF_2022/BR_UF_2022.shp",crs = 31981)
+st_crs(uf.sf)
+
+```
+
+
+
 # **Resultados**
 
 ## Análise de série temporal
@@ -484,6 +498,8 @@ Opcional: Modelagem (ex: SAR, CAR ou GWR)
 # **Discussão**
 
 O resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, uma vez que não foi verificado aumento significativo de um conjunto de eventos de interesse para monitoramento (EAIE). No entanto, ainda são necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
+
+
 
 
 \newpage
