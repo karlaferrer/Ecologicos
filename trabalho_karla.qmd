@@ -18,19 +18,19 @@ csl: epidemiology.csl
 
 **Rio de Janeiro, dezembro de 2023.**
 
-# **Introdução**
+# Análise de série temporal
+
+## **Introdução**
 
 A doença por coronavírus 2019 (COVID-19) é um agravo infecioso altamente contagioso causado pelo Coronavírus da Síndrome Respiratória Aguda Grave 2, que foi responsável por 6,9 milhões de mortes em todo o mundo [@chilamakuri2021; @rahman2021]. Devido à gravidade da pandemia, o desenvolvimento e o uso de vacinas para o controle da doença aconteceram de forma muito rápida, sem precedentes na história [@rudolph2022]. A eficácia e a segurança das vacinas foram amplamente demonstradas nos ensaios clínicos randomizados, no entanto, o monitoramento contínuo dos eventos adversos é necessário para a avaliação periódica da relação benefício-risco desses produtos [@polack2020a ; @sadoff2021 ; @voysey2021 ; @lavertu2021].
 
 De acordo com a Organização Mundial da Saúde (OMS), os eventos adversos de interesse especial (EAIE) são eventos clinicamente significativos pré-identificados e predefinidos que têm potencial de estarem causalmente associados à vacina que precisam ser cuidadosamente monitorados e confirmados por outros estudos [@worldhealthorganization]. As condições comumente consideradas como EAIE incluem eventos graves que já foram vistos com outras vacinas, eventos graves potencialmente associados a novas plataformas, eventos graves potencialmente relacionados a adjuvantes, eventos graves relacionados à falha da imunogenicidade da vacina ou eventos potencialmente específicos para populações especiais [@fundaçãooswaldocruz2023]. A lista de EAIE que devem ser monitorados na vacinação contra a COVID-19 foi publicada pela *Brighton Collaboration* (BC) e recomendada pela OMS [@law2020; @fraiman2022; @brightoncollaboration2022].
 
-# **Objetivos**
+## **Objetivos**
 
 -   Descrever a ocorrência internações hospitalares no SUS correspondentes aos EAIE graves no período anterior à vacinação e avaliar os efeitos da introdução da vacinação sobre a distribuição temporal desses eventos.
 
--   Analisar a distribuição espacial dos EAIE no Brasil por unidade da federação no período de 2015 a 2022.
-
-# **Métodos**
+## **Métodos**
 
 Trata-se de um estudo com desenho ecológico exploratório de série temporal. A população de interesse é formada por adultos hospitalizados com 18 anos ou mais e o período de análise foi de janeiro de 2015 a dezembro de 2022.
 
@@ -39,8 +39,6 @@ Para verificar se a introdução da vacinação contra a COVID-19 resultou em au
 A variável de desfecho foi definida como o total de EAIE graves por 100.000 internações/mês. O início da intervenção foi janeiro de 2021, quando foi iniciada a campanha de vacinação no Brasil.
 
 Foi utilizado o algoritmo automatizado, auto.arima() do pacote *forecast* do R para identificação dos termos do modelo ARIMA com todas as observações da série (96 meses). Foram incluídas covariáveis para indicar o início da pandemia, bem como o início da intervenção na série temporal via funções de transferência *step* e *ramp* [@schaffer2021]. O modelo com menor AIC ou BIC selecionado pelo método foi (2,1,0)x(0,1,1)˜12˜. Um segundo modelo com os mesmos termos foi ajustado para obtenção do contrafactual apenas com as observações anteriores ao início da vacinação (72 meses).
-
-Na segunda parte, será
 
 As condições (subcategorias CID) correspondentes aos EAIE encontram-se listadas no Anexo. Esses CID foram pesquisados nos campos de diagnóstico principal e diagnóstico secundário das Autorizações de Internação Hospitalar do SUS no período analisado.
 
@@ -231,8 +229,7 @@ Random <- decom$time.series[,3]
 
 recomposed <- Trend+Seasonal+Random
 
-jpeg(file="recomposed.jpg", width = 15, height = 10, units = "cm", pointsize = 12,
-     res = 600, quality = 85) 
+jpeg(file="recomposed.jpg", width = 15, height = 10, units = "cm", pointsize = 12,res = 600, quality = 85) 
 par(mfrow=c(1,2))
 plot(dft.ts, ylab="EAIE/100.000 int.", main="Original")
 plot(as.ts(recomposed), ylab="", main="Recomposta")
@@ -357,7 +354,6 @@ jpeg(file="tsdiag2.jpg", width = 10, height = 15, units = "cm", pointsize = 12,r
 tsdiag(arima2)
 dev.off()
 
-
 # Combine with observed data
 dft.ts.2 <- ts.union(dft.ts, fc.ts)
 dft.ts.2
@@ -398,130 +394,7 @@ plot6 <- grid.arrange(plot61, plot62, ncol = 2)
 ggsave("histogram.jpg",plot6, dpi=300)
 
 ```
-
-```{r espacial}
-#total de EAIE por UF
-esp <- df |> 
-  group_by(regiao0, lubridate::year(data)) |> 
-  summarize(total = n())
-
-#Shape UF IBGE malha municipal
-library(sf)
-library(colorspace)
-
-uf.sf <- read_sf("/Users/karlaferreira/Documents/Ensp 2023/Ecologicos/BR_UF_2022/BR_UF_2022.shp",crs = 31981)
-st_crs(uf.sf)
-
-#cobertura vacinal esquema primário por UF
-#em 21/12/23
-#Ministério da Saúde - Cobertura Vacinal COVID-19
-cob <- readxl::read_xlsx("cob_UF.xlsx")
-cob <- cob |> janitor::clean_names()
-names(cob)
-
-#juntar os dados de cobertura e shape UF
-uf.sf <- uf.sf |> 
-    mutate(uf_residencia = SIGLA_UF)  |> 
-    inner_join(cob, by = "uf_residencia")
-
-uf.sf <- uf.sf |> 
-  mutate(cobertura = round(cobertura_vacinal_2_doses_percent*100, digits = 1))
-
-g1 <- ggplot(uf.sf) + 
-    geom_sf(aes(fill = cut_interval(cobertura,5)), size = 0.2, legend_size = 2) +       colorspace::scale_fill_discrete_sequential(palette = "Reds",
-name = "cobertura %") +
-    #labs(title = "Cobertura vacinal COVID-19 - 2 doses") +
-    #annotation_scale(location = "bl", width_hint = 0.4) +
-    #annotation_north_arrow(location = "bl", which_north = "true", style = north_arrow_minimal) +
-    theme(legend.title = element_text(size = 9)) +
-    theme(legend.text = element_text(size = 7)) +
-    theme_void()
-
-g2 <- ggplot(uf.sf, aes(cobertura)) + geom_density(fill = "red",
-    alpha = 0.2) + geom_vline(xintercept = quantile(uf.sf$cobertura,
-    probs = seq(0, 1, by = 0.2)), color = "red", linetype = "dashed") +
-    labs(x= "cobertura %", y = "densidade") +
-    theme(text = element_text(size = 7)) +
-    theme(plot.margin = margin(3, 1, 1, 1, "cm"))
-
-tema <- ggpubr::ggarrange(g1, g2, nrow = 1, widths = c(6.5,3.5))
-ggsave("tematico.jpg",tema, dpi=300)
-
-```
-```{r vizinhanca}
-
-library(sf)
-#Coordenadas dos centroides das UF
-centroides <- sf::st_centroid(uf.sf)
-coordenadas <- sf::st_coordinates(centroides)
-
-# Convertendo para Spatial Polygons para usar
-# poly2nb
-uf.sp <- as_Spatial(uf.sf)
-
-library(spdep)
-# Criando a vizinhança
-viz <- poly2nb(uf.sp)
-viz
-
-# Transformando a vizinhança em linhas para
-# plotar
-viz.sf <- nb2lines(viz, coords = coordenadas, as_sf = TRUE)
-viz.sf <- st_set_crs(viz.sf, st_crs(uf.sf))
-
-# Plotando o mapa de conectividade por
-# contiguidade
-ggplot() + geom_sf(data = uf.sf, fill = "salmon", size = 0.2,
-    color = "white") + geom_sf(data = centroides, size = 1) +
-    geom_sf(data = viz.sf, size = 0.2) + ggtitle("Vizinhança por conectividade") +
-    ylab("Latitude") + xlab("Longitude") + theme_minimal()
-
-```
-
-```{r autocorrelacao}
-library(tmap)
-
-#correlacao da cobertura vacinal
-pesos.viz <- nb2listw(viz)
-moran.test(uf.sf$cobertura, pesos.viz)
-
-#correlograma
-correl <- sp.correlogram(viz, uf.sf$cobertura, order = 4, method = "I")
-correl
-#Correlograma
-plot(correl)
-
-#uf com p-valores mais significativos no Moran Local
-uf.sf$pval <- localmoran(uf.sf$cobertura, pesos.viz)[, 5]
-
-plot_pv <- tm_shape(uf.sf) + 
-  tm_polygons(col = "pval", title = "p-valores",
-    breaks = c(0, 0.01, 0.05, 0.1, 1), border.col = "white",
-    palette = "-Oranges") + tm_scale_bar(width = 0.15) + 
-  tm_layout(frame = FALSE) + tmap_mode("plot")
-ggsave("plot_pv.jpg",plot_pv, dpi=300)
-
-#Moran Local (Lisa Map) da cobertura:
-resI <- localmoran.sad(lm(uf.sf$cobertura ~ 1), 1:length(viz),
-    viz, style = "W")
-summary(resI)[1:5, ]
-
-uf.sf$MoranLocal <- summary(resI)[, 1]
-
-ggplot(uf.sf) + 
-  geom_sf(aes(fill = MoranLocal), color = "black",
-    size = 0.2) + 
-  colorspace::scale_fill_continuous_diverging(palette = "Blue-Red 3",
-    mid = 0) + 
-  ggtitle("Moran local") + theme_void()
-
-```
-
-
-
-# **Resultados**
-
-## Análise de série temporal
+## **Resultados**
 
 No período de janeiro de 2015 a dezembro de 2017 ocorreram 3.735.180 EAIE graves em um total de 3.627.942 internações (1,02 EAIE por internação). A idade mediana na amostra é de 63 anos (IIQ: 51-76), com 60% do pacientes com idade superior ou igual a 60 anos e 53,7% do sexo masculino. O período de análise compreende 96 meses sendo o valor mínimo de 4.060 EAIE por 100.000 internações observado em março de 2015 e o valor máximo em agosto de 2020 (5.760/100.000), com média de 4.892/100.000.
 
@@ -592,22 +465,183 @@ knitr::include_graphics("histogram.jpg", dpi=600)
 
 ```
 
-## Análise espacial
-
-Ler o arquivo vetorial (.shp ou .gpkg) e/ou banco de dados pretendido
-criar Matriz de Vizinhança
-Análise exploratória Espacial (Mapas temáticos, autocorrelação espacial)
-Opcional: Modelagem (ex: SAR, CAR ou GWR)
-
-
-
-# **Discussão**
+## **Discussão**
 
 O resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, uma vez que não foi verificado aumento significativo de um conjunto de eventos de interesse para monitoramento (EAIE). No entanto, ainda são necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
 
+# Análise espacial
+
+## **Introdução**
+
+No dia 18 de janeiro de 2021 foi iniciada a Campanha Nacional de Vacinação contra a COVID-19 no Brasil [@ministériodasaúde.secretariaextraordináriadeenfrentamentoàcovid-192022]. 
+
+Até o fim de 2022, haviam sido aplicadas mais de 504 milhões de doses das vacinas contra a COVID-19 em todo o país [@ministériodasaúde2023a]. Em fevereiro de 2023, o país apresentava uma cobertura vacinal de 86,0% para a primeira dose e de 77,8% para a segunda dose (esquema primário). Nesse momento, a cobertura era de 65,4% e 38,7% para a primeira e segunda doses de reforço respectivamente. No esquema básico, as faixas etárias que alcaçaram a meta de pelo menos 90% para a dose 1 foram a de 12 a 29 anos e a de 50 a 80 anos. Na dose 2, a meta foi atingida apenas na faixa etária de 50 a 80 anos. Quanto à distribuição espacial da cobertura no esquema vacinal primário, 2.612 municípios alcançaram a meta de 90% para a dose 1 e 1.899 para a dose 2 [@ministériodasaúde2023g].
+
+## **Objetivos**
+
+- Analisar a distribuição espacial da cobertura vacinal para a primeira e segunda doses da vacina contra a COVID-19 entre as unidades da federação no Brasil.
+
+- Analisar a distribuição espacial da cobertura vacinal para a primeira e segunda doses da vacina contra a COVID-19 entre os municípios do Rio de Janeiro.
+
+## **Métodos**
+
+Os dados foram obtidos na página do Painel de Cobertura Vacinal COVID do Ministério da Saúde [@coberturavacinalms]. Foram utilizados os dados de cobertura por residência, que consideram as informações do endereço cadastrado no Cartão Nacional de Saúde (CNS) do cidadão [@SEI/MS0036724379].
+
+A cobertura vacinal é calculada pelo Ministério da Saúde dividindo o número de indivíduos vacinados pelo número total de pessoas elegíveis para vacinação multiplicando por 100. No denominador são utilizadas as estimativas populacionais mais recentes publicadas pelo Instituto Brasileiro de Geografia e Estatística (IBGE) [@SEI/MS0036724379].
+
+Foi realizada análise exploratória aplicada a dados espaciais de área. Primeiramente foi elaborado o mapa temático com apresentação dos valores de cobertura vacinal organizados em categorias de intervalos iguais. 
+
+Na etapa seguinte, buscou-se identificar a existência de estrutura de correlação espacial entre as áreas. Foi utilizada matriz de vizinhança por contiguidade, transformada em seguida em uma matriz de pesos utilizada para para estimar o Índice de Moran que indica o grau de associação espacial para a cobertura vacinal.
+
+```{r espacial}
+# Arquivos ----------------------------------------------------------------
+
+#Shape UF IBGE malha municipal - Rio de Janeiro
+library(sf)
+library(colorspace)
+
+rj.sf <- read_sf("/Users/karlaferreira/Documents/Ensp 2023/Ecologicos/RJ_Municipios_2022/RJ_Municipios_2022.shp",crs = 31981)
+st_crs(rj.sf)
+
+#cobertura vacinal esquema primário em 21/12/23
+#Ministério da Saúde - Cobertura Vacinal COVID-19
+cobrj <- readxl::read_xlsx("cobertura_RJ.xlsx")
+cobrj <- cobrj |> janitor::clean_names()
+names(cobrj)
+
+#juntar os dados de cobertura e shape UF
+rj.sf2 <- rj.sf |> 
+  mutate(municipio_residencia = NM_MUN)  |> 
+  inner_join(cobrj, by = "municipio_residencia")
+
+rj.sf2 <- rj.sf2 |> 
+  mutate(cobertura = round(cobertura_vacinal_2_doses_percent*100, digits = 1))
+
+g1rj <- ggplot(rj.sf2) + 
+  geom_sf(aes(fill = cut_interval(cobertura,5)), size = 0.2) + 
+  colorspace::scale_fill_discrete_sequential(palette = "Reds",
+name = "cobertura %") +
+  #labs(title = "Cobertura vacinal COVID-19 - 2 doses") +
+  #annotation_scale(location = "bl", width_hint = 0.4) +
+  #annotation_north_arrow(location = "bl", which_north = "true", style = north_arrow_minimal) +
+  theme(legend.title = element_text(size = 9)) +
+  theme(legend.text = element_text(size = 7)) +
+  theme_void()
+
+g2rj <- ggplot(rj.sf2, aes(cobertura)) + 
+  geom_density(fill = "red", alpha = 0.2) +
+  geom_vline(xintercept = quantile(uf.sf$cobertura,
+probs = seq(0, 1, by = 0.2)), color = "red", linetype = "dashed") +
+  labs(x= "cobertura %", y = "densidade") +
+  theme(text = element_text(size = 7)) +
+  theme(plot.margin = margin(3, 1, 1, 1, "cm"))
+
+temarj <- ggpubr::ggarrange(g1rj, g2rj, nrow = 1, widths = c(6.5,3.5))
+ggsave("tematico_rj.jpg",temarj, dpi=300)
 
 
+# Vizinhanca --------------------------------------------------------------
+
+library(sf)
+#Coordenadas dos centroides das UF
+centroides <- sf::st_centroid(rj.sf2)
+coordenadas <- sf::st_coordinates(centroides)
+
+# Convertendo para Spatial Polygons para usar
+# poly2nb
+rj.sp <- as_Spatial(rj.sf2)
+
+library(spdep)
+# Criando a vizinhança
+vizrj <- poly2nb(rj.sp)
+vizrj
+
+# Transformando a vizinhança em linhas para
+# plotar
+viz.sfrj <- nb2lines(vizrj, coords = coordenadas, as_sf = TRUE)
+viz.sfrj <- st_set_crs(viz.sfrj, st_crs(rj.sf2))
+
+# Plotando o mapa de conectividade por
+# contiguidade
+conect_rj <- ggplot() + 
+  geom_sf(data = rj.sf2, fill = "salmon", size = 0.2,color = "white") + 
+  geom_sf(data = centroides, size = 1) +
+  geom_sf(data = viz.sfrj, size = 0.2) + 
+  ggtitle("Vizinhança por conectividade") +
+  ylab("Latitude") + xlab("Longitude") + 
+  theme_minimal()
+ggsave("conect_rj.jpg",conect_rj, dpi=300)
+
+# Autocorrelacao ----------------------------------------------------------
+
+library(tmap)
+
+#correlacao da cobertura vacinal
+pesos.vizrj <- nb2listw(vizrj)
+moran.test(rj.sf2$cobertura, pesos.vizrj)
+
+#correlograma
+correl <- sp.correlogram(vizrj, rj.sf2$cobertura, order = 5, method = "I")
+correl
+
+#Correlograma
+jpeg(file="correl_rj.jpg", width = 15, height = 10, units = "cm", pointsize = 12,res = 600, quality = 85)
+plot(correl, main = " ")
+dev.off()
+
+#mun. com p-valores mais significativos no Moran Local
+rj.sf2$pval <- localmoran(rj.sf2$cobertura, pesos.vizrj)[, 5]
+
+jpeg(file="pv_rj.jpg", width = 15, height = 10, units = "cm", pointsize = 12,res = 600, quality = 85)
+tm_shape(rj.sf2) + 
+  tm_polygons(col = "pval", title = "p-valores",
+              breaks = c(0, 0.01, 0.05, 0.1, 1), border.col = "white",
+              palette = "-Oranges") + 
+  tm_scale_bar(width = 0.15) +
+  tm_compass() +
+  tm_layout(frame = FALSE) + 
+  tmap_mode("plot")
+dev.off()
+
+#Moran Local (Lisa Map) da cobertura:
+resIrj <- localmoran.sad(lm(rj.sf2$cobertura ~ 1), 1:length(vizrj),
+                       vizrj, style = "W")
+summary(resIrj)[1:5, ]
+
+rj.sf2$MoranLocal <- summary(resIrj)[, 1]
+
+moran_rj <- ggplot(rj.sf2) + 
+  geom_sf(aes(fill = MoranLocal), color = "black",
+          size = 0.2) + 
+  colorspace::scale_fill_continuous_diverging(palette = "Blue-Red 3",
+                                              mid = 0) + 
+  #annotation_scale(location = "bl", width_hint = 0.4) +
+  #annotation_north_arrow(location = "bl", which_north = "true", style = north_arrow_minimal) +
+  #coord_sf(crs tio= 31981) +
+  #ggtitle("Moran local") + 
+  theme_void()
+ggsave("moran_rj.jpg",moran_rj, dpi=300)
+
+#Global Moran 
+moran.test(rj.sf2$cobertura, pesos.vizrj)
+#Spatial autocorrelation is present; 
+#the observed pattern is unlikely to be random.
+
+```
+
+## **Resultados**
 
 \newpage
 
 # **Referências**
+
+<div id="refs"></div>
+
+\newpage
+
+# Anexo {-} 
+
+```{r child='_appendix.Rmd'}
+
+```
+
