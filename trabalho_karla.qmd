@@ -469,29 +469,31 @@ knitr::include_graphics("histogram.jpg", dpi=600)
 
 O resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, uma vez que não foi verificado aumento significativo de um conjunto de eventos de interesse para monitoramento (EAIE). No entanto, ainda são necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
 
+\newpage
+
 # Análise espacial
 
 ## **Introdução**
 
-No dia 18 de janeiro de 2021 foi iniciada a Campanha Nacional de Vacinação contra a COVID-19 no Brasil [@ministériodasaúde.secretariaextraordináriadeenfrentamentoàcovid-192022]. 
+No dia 18 de janeiro de 2021 foi iniciada a Campanha Nacional de Vacinação contra a COVID-19 no Brasil [@ministériodasaúde.secretariaextraordináriadeenfrentamentoàcovid-192022]. Passado um ano do início da vacinação, verificou-se uma cobertura maior dos municípios com IDH (Índice de Desenvolvimento Humano) mais alto. Os componentes desse índice (longevidade, renda e escolaridade) naturalmente se associam à cobertura, pois a vacinação teve como um dos grupos prioritários a população de idosos, ainda assim, a distribuição geográfica da cobertura vacinal reflete um padrão de desigualdade normalmente observado na distribuição dos agravos de saúde. Foram observadas coberturas mais elevadas nas regiões Sul e Sudeste e bolsões com baixa imunização nas regiões Norte, Nordeste e Centro-Oeste [@fiocruz] 
 
 Até o fim de 2022, haviam sido aplicadas mais de 504 milhões de doses das vacinas contra a COVID-19 em todo o país [@ministériodasaúde2023a]. Em fevereiro de 2023, o país apresentava uma cobertura vacinal de 86,0% para a primeira dose e de 77,8% para a segunda dose (esquema primário). Nesse momento, a cobertura era de 65,4% e 38,7% para a primeira e segunda doses de reforço respectivamente. No esquema básico, as faixas etárias que alcaçaram a meta de pelo menos 90% para a dose 1 foram a de 12 a 29 anos e a de 50 a 80 anos. Na dose 2, a meta foi atingida apenas na faixa etária de 50 a 80 anos. Quanto à distribuição espacial da cobertura no esquema vacinal primário, 2.612 municípios alcançaram a meta de 90% para a dose 1 e 1.899 para a dose 2 [@ministériodasaúde2023g].
 
 ## **Objetivos**
 
-- Analisar a distribuição espacial da cobertura vacinal para a primeira e segunda doses da vacina contra a COVID-19 entre as unidades da federação no Brasil.
-
-- Analisar a distribuição espacial da cobertura vacinal para a primeira e segunda doses da vacina contra a COVID-19 entre os municípios do Rio de Janeiro.
+- Analisar a distribuição da cobertura da primeira e segunda doses da vacina contra a COVID-19 nos municípios do Rio de Janeiro.
 
 ## **Métodos**
 
-Os dados foram obtidos na página do Painel de Cobertura Vacinal COVID do Ministério da Saúde [@coberturavacinalms]. Foram utilizados os dados de cobertura por residência, que consideram as informações do endereço cadastrado no Cartão Nacional de Saúde (CNS) do cidadão [@SEI/MS0036724379].
+Foi realizado um estudo ecológico a partir de dados que foram obtidos na página do Painel de Cobertura Vacinal COVID do Ministério da Saúde [@coberturavacinalms]. Esse estudo utilizou dados de cobertura por residência, que consideram as informações do endereço cadastrado no Cartão Nacional de Saúde (CNS) do cidadão [@SEI/MS0036724379].
 
 A cobertura vacinal é calculada pelo Ministério da Saúde dividindo o número de indivíduos vacinados pelo número total de pessoas elegíveis para vacinação multiplicando por 100. No denominador são utilizadas as estimativas populacionais mais recentes publicadas pelo Instituto Brasileiro de Geografia e Estatística (IBGE) [@SEI/MS0036724379].
 
 Foi realizada análise exploratória aplicada a dados espaciais de área. Primeiramente foi elaborado o mapa temático com apresentação dos valores de cobertura vacinal organizados em categorias de intervalos iguais. 
 
-Na etapa seguinte, buscou-se identificar a existência de estrutura de correlação espacial entre as áreas. Foi utilizada matriz de vizinhança por contiguidade, transformada em seguida em uma matriz de pesos utilizada para para estimar o Índice de Moran que indica o grau de associação espacial para a cobertura vacinal.
+Na etapa seguinte, buscou-se identificar existência de estrutura de correlação espacial entre as áreas. Inicialmente foi obtido o Índice Global de Moran, que fornece um valor único para resumir a associação espacial de forma geral para todo o conjunto de dados. O índice I de Moran é uma medida de autocorrelação espacial que quantifica o grau em que valores semelhantes estão agrupados ou dispersos em um conjunto de dados espaciais.
+
+Em seguida, para examinar os padrões espaciais em maior detalhe, utilizou-se o Índice de Moran Local, que é um indicador local de associação espacial (LISA). Para isso, foi obtida uma matriz de vizinhança por contiguidade, transformada em seguida em uma matriz de pesos que foi utilizada para para estimar o Índice de Moran. Este índice permite fazer a clusterização de observações no espaço para avaliar a existência de dependência espacial. O nível de significância adotado foi de 0,05. Os valores determinados pelo Índice de Moran Local foram apresentados graficamente em um mapa (Lisa Map).
 
 ```{r espacial}
 # Arquivos ----------------------------------------------------------------
@@ -517,6 +519,20 @@ rj.sf2 <- rj.sf |>
 rj.sf2 <- rj.sf2 |> 
   mutate(cobertura = round(cobertura_vacinal_2_doses_percent*100, digits = 1))
 
+#estatisticas sumarias
+summary(rj.sf2$cobertura)
+rj.sf2$NM_MUN[which.max(rj.sf2$cobertura)]
+rj.sf2$NM_MUN[which.min(rj.sf2$cobertura)]
+
+boxplot(rj.sf2$cobertura)
+hist(rj.sf2$cobertura)
+
+#total que cumpriram meta: 25
+as.data.frame(rj.sf2) |> 
+  filter(cobertura >= 90) |> 
+   summarize(total = n())
+
+#mapa tematico para cobertura
 g1rj <- ggplot(rj.sf2) + 
   geom_sf(aes(fill = cut_interval(cobertura,5)), size = 0.2) + 
   colorspace::scale_fill_discrete_sequential(palette = "Reds",
@@ -530,7 +546,7 @@ name = "cobertura %") +
 
 g2rj <- ggplot(rj.sf2, aes(cobertura)) + 
   geom_density(fill = "red", alpha = 0.2) +
-  geom_vline(xintercept = quantile(uf.sf$cobertura,
+  geom_vline(xintercept = quantile(rj.sf2$cobertura,
 probs = seq(0, 1, by = 0.2)), color = "red", linetype = "dashed") +
   labs(x= "cobertura %", y = "densidade") +
   theme(text = element_text(size = 7)) +
@@ -567,7 +583,7 @@ conect_rj <- ggplot() +
   geom_sf(data = rj.sf2, fill = "salmon", size = 0.2,color = "white") + 
   geom_sf(data = centroides, size = 1) +
   geom_sf(data = viz.sfrj, size = 0.2) + 
-  ggtitle("Vizinhança por conectividade") +
+  #ggtitle("Vizinhança por conectividade") +
   ylab("Latitude") + xlab("Longitude") + 
   theme_minimal()
 ggsave("conect_rj.jpg",conect_rj, dpi=300)
@@ -578,7 +594,7 @@ library(tmap)
 
 #correlacao da cobertura vacinal
 pesos.vizrj <- nb2listw(vizrj)
-moran.test(rj.sf2$cobertura, pesos.vizrj)
+moran.test(rj.sf2$cobertura, pesos.vizrj) #moran global
 
 #correlograma
 correl <- sp.correlogram(vizrj, rj.sf2$cobertura, order = 5, method = "I")
@@ -630,6 +646,148 @@ moran.test(rj.sf2$cobertura, pesos.vizrj)
 ```
 
 ## **Resultados**
+
+A cobertura vacinal das doses 1 e 2 das vacinas contra a COVID-19 variou entre 45,9% e 122,3% no estado do Rio de Janeiro, com mediana de 80,5%. Os valores mínimo e máximo foram observados nos municípios de São Fidélis e Macuco, respectivamente. Do total de 92 municípios do estado, apenas 25 atingiram a meta de 90% de cobertura para as duas doses. A distribuição espacial da cobertura vacinal encontra-se disposta na @fig-Figura8.
+
+```{r Figura8, include=TRUE}
+#| label: fig-Figura8
+#| fig-cap: "Cobertura vacinal das doses 1 e 2 contra a COVID-19 por município do estado do Rio de Janeiro em dezembro de 2023."
+#| out-width: "90%"
+knitr::include_graphics("tematico_rj.jpg", dpi=600)
+
+```
+
+Para identificar a estrutura de correlação espacial entre os municípios, foi obtida uma matriz de vizinhança por contiguidade. O mapa de conectividade por contiguidade dos municípios do Rio de Janeiro é apresentado na @fig-Figura9.
+
+```{r Figura9, include=TRUE}
+#| label: fig-Figura9
+#| fig-cap: "Mapa de conectividade por contiguidade dos municípios do Rio de Janeiro."
+#| out-width: "80%"
+
+conect_rj
+
+```
+
+O índice Global de Moran foi de 0,2, indicando a presença de associação espacial positiva na cobertura vacinal para COVID-19 (doses 1 e 2) nos municípios do Rio de Janeiro (p-valor = 0,001). A autocorrelação espacial em diferentes distâncias ou intervalos de defasagem encontra-se disposta na @fig-Figura10. Os resultados do correlograma indicam baixa correlação positiva entre os municípios mais próximos e baixa correlação negativa quando os municípios se distanciam.
+
+
+```{r Figura10, include=TRUE}
+#| label: fig-Figura10
+#| fig-cap: "Correlograma para a cobertura vacinal das doses 1 e 2 contra a COVID-19 por município do estado do Rio de Janeiro em dezembro de 2023."
+#| out-width: "80%"
+
+knitr::include_graphics("correl_rj.jpg", dpi=600)
+
+```
+
+A @fig-Figura11 ilustra os municípios que tiveram os p-valores mais significativos no Moran Local. O mapa temático Moran Local (Lisa Map) para a cobertura vacinal consta na @fig-Figura12. A relação desses resultados mostram que algumas áreas apresentam alta correlação espacial. O aglomerado de muncípios em vermelho sinaliza tendência de aumento da cobertura vacinal na medida que os vizinhos aumentam (Rio das Flores,Paraíba do Sul, Paty do Alferes, Vassouras, Engenheiro de Paulo Frontin, Mendes, Barra do Piraí, Volta Redonda e Barra Mansa). Também, observa-se que a capital do Rio de Janeiro tem uma cobertura relativamente mais baixa que seus vizinhos, mesmo tendo atingido a meta de cobertura.
+
+```{r Figura11, include=TRUE}
+#| label: fig-Figura11
+#| fig-cap: " Municípios com p-valores significativos no Moran Local para a cobertura vacinal das doses 1 e 2 contra a COVID-19."
+#| out-width: "80%"
+
+knitr::include_graphics("pv_rj.jpg", dpi=600)
+
+```
+
+```{r Figura12, include=TRUE}
+#| label: fig-Figura12
+#| fig-cap: "Moran Local (Lisa Map) para a cobertura vacinal das doses 1 e 2 contra a COVID-19 por município do estado do Rio de Janeiro em dezembro de 2023."
+#| out-width: "80%"
+
+moran_rj
+
+```
+```{r modelo}
+#IDH 2010 IBGE
+idh <- read.csv("IDH.csv")
+
+cd_mun <- as.data.frame(rj.sf2[,c(1,2)])
+idh <- cbind(cd_mun,idh)
+idh <- idh[,-3]
+
+rj.sf2 <- left_join(rj.sf2, idh[], by = "CD_MUN")
+
+g3rj <- ggplot(rj.sf2) + 
+  geom_sf(aes(fill = X2010), size = 0.2) +
+    scale_fill_continuous_sequential(palette = "Viridis",
+        name = "IDH") + 
+  #labs(title = "IDH, 2010") +
+    theme_void()
+
+plot_idh <- ggpubr::ggarrange(g1rj, g3rj, nrow = 2)
+ggsave("idh_rj.jpg",plot_idh, dpi=300)
+
+#modelo CAR
+
+#install.packages("spatialreg")
+library(spatialreg)
+
+cob.car <- spatialreg::spautolm(cobertura ~ X2010, data = rj.sf2,listw = pesos.vizrj, family = "CAR")
+
+summary(cob.car)
+
+#residuos
+cob.car$carresid <- residuals(cob.car)
+moran.test(cob.car$carresid, pesos.vizrj)
+#indica presenca de autocorrelacao nos residuos
+
+#pelo modelo GWR
+#banda ideal
+install.packages("spgwr")
+library(spgwr)
+
+#tamanho de banda ideal
+GWRbanda <- gwr.sel(cobertura ~ X2010, data = rj.sf2,coords = coordenadas, adapt = T)
+
+#modelo gwr
+cob.gwr <- gwr(cobertura ~ X2010, data = rj.sf2,
+    coords = coordenadas, adapt = GWRbanda, hatmatrix = TRUE, se.fit = TRUE)
+
+cob.gwr
+
+results <- as.data.frame(cob.gwr$SDF)
+head(results)
+
+#autocorrelacao nos residuos
+results$residuos <- rj.sf2$cobertura - results$pred
+moran.test(results$residuos, pesos.vizrj)
+#residuos sem autocorrelacao
+
+#paleta de cores
+#library(ColorBrewer)
+#pal <- brewer.pal(n = 10, name = "BuPu")
+
+rj.sf2$coef.IDH <- results$X2010
+rj.sf2$localR2 <- results$localR2
+rj.sf2$pred.gwr <- results$pred
+
+map.idh <- ggplot(rj.sf2) + 
+  geom_sf(aes(fill = coef.IDH),
+    color = "black", size = 0.2) + 
+  scale_fill_gradientn(colours = terrain.colors(10)) +
+  ggtitle("(a)") +
+    theme_void()
+
+#significancia por Wald
+
+# Calculando a estatística de wald
+rj.sf2$wald.teste <- abs(results$X2010/results$X2010_se)
+# Dicotomizando a estatística de wald
+rj.sf2$wald.teste <- ifelse(rj.sf2$wald.teste < 2, 0, 1)
+
+
+map.wald <- ggplot(rj.sf2) + 
+  geom_sf(aes(fill = factor(wald.teste)),
+    color = "black", size = 0.2) + scale_fill_manual(values = c("white",
+    "orange"), labels = c("< 2", ">= 2"), name = "Wald") +
+  ggtitle("(b)") + theme_void()
+
+gridExtra::grid.arrange(map.idh, map.wald, nrow = 2)
+
+```
+## **Discussão**
 
 \newpage
 
