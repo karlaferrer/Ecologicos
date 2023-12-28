@@ -1,5 +1,5 @@
 ---
-title: "Análise da distribuição de eventos adversos de interesse especial graves na vacinação contra a COVID-19 no Brasil e da cobertura vacinal para o esquema primário no estado do Rio de Janeiro"
+title: "Análise temporal dos eventos adversos de interesse especial graves na vacinação contra a COVID-19 no Brasil e Análise espacial da cobertura vacinal para o esquema primário no estado do Rio de Janeiro"
 author: "**Karla de Araujo Ferreira**"
 lang: pt
 format:
@@ -28,7 +28,7 @@ De acordo com a Organização Mundial da Saúde (OMS), os eventos adversos de in
 
 ## **Objetivo**
 
--   Descrever a ocorrência internações hospitalares no SUS correspondentes aos EAIE graves no período anterior à vacinação e avaliar os efeitos da introdução da vacinação sobre a distribuição temporal desses eventos.
+-   Descrever a ocorrência de internações hospitalares no SUS correspondentes aos EAIE graves no período anterior à vacinação e avaliar os efeitos da introdução da vacinação sobre a distribuição temporal desses eventos.
 
 ## **Métodos**
 
@@ -38,7 +38,7 @@ Para verificar se a introdução da vacinação contra a COVID-19 resultou em au
 
 A variável de desfecho foi definida como o total de EAIE graves por 100.000 internações/mês. O início da intervenção foi janeiro de 2021, quando foi iniciada a campanha de vacinação no Brasil.
 
-Foi utilizado o algoritmo automatizado, auto.arima() do pacote *forecast* do R para identificação dos termos do modelo ARIMA com todas as observações da série (96 meses). Foram incluídas covariáveis para indicar o início da pandemia, bem como o início da intervenção na série temporal via funções de transferência *step* e *ramp* [@schaffer2021]. O modelo com menor AIC ou BIC selecionado pelo método foi (2,1,0)x(0,1,1)˜12˜. Um segundo modelo com os mesmos termos foi ajustado para obtenção do contrafactual apenas com as observações anteriores ao início da vacinação (72 meses).
+Foi utilizado o algoritmo automatizado, auto.arima() do pacote *forecast* do R para identificação dos termos do modelo ARIMA com todas as observações da série (96 meses). Foram incluídas covariáveis para indicar o início da pandemia, bem como o início da intervenção na série temporal via funções de transferência *step* e *ramp* [@schaffer2021]. O modelo com menor AIC ou BIC selecionado pelo método foi (2,1,0)x(0,1,1)~12~. Um segundo modelo com os mesmos termos foi ajustado para obtenção do contrafactual apenas com as observações anteriores ao início da vacinação (72 meses).
 
 As condições (subcategorias CID) correspondentes aos EAIE encontram-se listadas no Anexo. Esses CID foram pesquisados nos campos de diagnóstico principal e diagnóstico secundário das Autorizações de Internação Hospitalar do SUS no período analisado.
 
@@ -282,8 +282,8 @@ saz <- gg_subseries(dft.tb, xlab ="EAIE/100.000 internações", ylab="")
 #tendencia e sazonalidade
 jpeg(file="sazon_tenden.jpg", width = 15, height = 10, units = "cm", pointsize = 12,res = 600, quality = 85) 
 par(mfrow=c(1,2))
-boxplot(dft.ts ~ trunc(time(dft.ts)), xlab = "", ylab ="EAIE/100.000 internações", col = "burlywood3",  cex.lab=0.5, cex.axis=0.5, main = "(a)", cex.main=0.8)
-boxplot(dft.ts ~ cycle(dft.ts), names = month.abb, xlab = "", col = "aquamarine3", ylab = "",cex.lab=0.5, cex.axis=0.5, main = "(b)", cex.main=0.8) 
+boxplot(dft.ts ~ trunc(time(dft.ts)), xlab = "", ylab ="EAIE/100.000 internações", col = "burlywood3",  cex.lab=0.7, cex.axis=0.7, main = "(a)", cex.main=0.8)
+boxplot(dft.ts ~ cycle(dft.ts), names = month.abb, xlab = "", col = "aquamarine3", ylab = "",cex.lab=0.7, cex.axis=0.7, main = "(b)", cex.main=0.8) 
 dev.off()
 
 #decomposicao
@@ -408,9 +408,10 @@ plot6 <- grid.arrange(plot61, plot62, ncol = 2)
 ggsave("histogram.jpg",plot6, dpi=300)
 
 ```
+
 ## **Resultados**
 
-No período de janeiro de 2015 a dezembro de 2017 ocorreram 3.735.180 EAIE graves em um total de 3.627.942 internações (1,02 EAIE por internação). A idade mediana na amostra é de 63 anos (IIQ: 51-76), com 60% do pacientes com idade superior ou igual a 60 anos e 53,7% do sexo masculino. O período de análise compreende 96 meses sendo o valor mínimo de 4.060 EAIE por 100.000 internações observado em março de 2015 e o valor máximo em agosto de 2020 (5.760/100.000), com média de 4.892/100.000.
+No período de janeiro de 2015 a dezembro de 2017 ocorreram 3.735.180 EAIE graves em um total de 3.627.942 internações. A idade mediana na amostra é de 63 anos (IIQ: 51-76), com 60% do pacientes com idade superior ou igual a 60 anos e 53,7% do sexo masculino. O período de análise compreende 96 meses sendo o valor mínimo de 4.060 EAIE por 100.000 internações observado em março de 2015 e o valor máximo em agosto de 2020 (5.760/100.000), com média de 4.892/100.000.
 
 A @fig-Figura1 apresenta a taxa mensal de EAIE graves para a vacinação contra a COVID-19 por 100.000 internações no período de análise. A série apresenta componente de sazonalidade com a maior parte dos casos ocorrendo no fim de cada ano, com exceção dos anos de 2020 e 2021 que apresentam pico de casos no meio do ano, conforme se verifica com maior clareza na @fig-Figura2. É também notável a presença de tendência com evidente aumento dos casos no período observado (@fig-Figura2).
 
@@ -423,7 +424,6 @@ knitr::include_graphics("EAIEts.jpg", dpi=600)
 
 ```
 
-
 ```{r Figura2, include=TRUE}
 #| label: fig-Figura2
 #| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 por 100.000 internações no SUS no período de 2015 a 2022 por anos e meses da série - (a) tendência (b) sazonalidade."
@@ -433,12 +433,11 @@ knitr::include_graphics("sazon_tenden.jpg", dpi=600)
 
 ```
 
-
 A @fig-Figura3 apresenta a decomposição da série temporal da taxa mensal de EAIE graves pelo método STL (*Seasonal and Trend decomposition using Loess*). De acordo com as métricas de força do método, a tendência é um componente forte (0,94) e a sazonalidade é um componente de força intermediária (0,619). No componente gráfico da tendência, verifica-se o aumento da taxa de EAIE ao longo da série, com uma estabilização nos últimos anos. A @fig-Figura4 mostra a série original e a série recomposta pelo método STL.
 
 ```{r Figura3, include=TRUE}
 #| label: fig-Figura3
-#| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 e seus três componentes aditivos (tendência, sazonalidade e restante.)"
+#| fig-cap: "Taxa de eventos adversos de interesse especial graves para a vacinação contra a COVID-19 e seus três componentes aditivos (tendência, sazonalidade e restante)."
 #| out-width: "15cm"
 #| out-height: "15cm"
 
@@ -458,7 +457,7 @@ A @fig-Figura5 compara as taxas de EAIE observadas na série com os valores pred
 
 ```{r Figura5, include=TRUE}
 #| label: fig-Figura5
-#| fig-cap: "Valores observados e valores preditos com base no modelo ARIMA ARIMA(2,1,0)(0,1,1)[12] para a taxa de eventos adversos de interesse especial graves no SUS após o início da vacinação contra a COVID-19."
+#| fig-cap: "Valores observados e valores preditos com base no modelo ARIMA(2,1,0)(0,1,1)$_{12}$ para a taxa de eventos adversos de interesse especial graves no SUS após o início da vacinação contra a COVID-19."
 #| out-width: "90%"
 knitr::include_graphics("arima.jpg", dpi=600)
 
@@ -468,7 +467,7 @@ Os resultados relativos à qualidade do ajuste dos modelos ARIMA para a série c
 
 ```{r Figura6, include=TRUE}
 #| label: fig-Figura6
-#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)[12] da série completa."
+#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)$_{12}$ da série completa."
 #| out-width: "80%"
 knitr::include_graphics("tsdiag1.jpg", dpi=600)
 
@@ -476,7 +475,7 @@ knitr::include_graphics("tsdiag1.jpg", dpi=600)
 
 ```{r Figura7, include=TRUE}
 #| label: fig-Figura7
-#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)[12] do contrafactual."
+#| fig-cap: "Análise dos resíduos para o modelo ARIMA(2,1,0)(0,1,1)$_{12}$ do contrafactual."
 #| out-width: "80%"
 knitr::include_graphics("tsdiag2.jpg", dpi=600)
 
@@ -484,7 +483,7 @@ knitr::include_graphics("tsdiag2.jpg", dpi=600)
 
 ```{r Figura8, include=TRUE}
 #| label: fig-Figura8
-#| fig-cap: "Gráfico de densidade dos resíduos para os modelos ARIMA(2,1,0)(0,1,1)[12] - série completa e contrafactual."
+#| fig-cap: "Gráfico de densidade dos resíduos para os modelos ARIMA(2,1,0)(0,1,1)$_{12}$ - série completa e contrafactual."
 #| out-width: "80%"
 knitr::include_graphics("histogram.jpg", dpi=600)
 
@@ -495,26 +494,27 @@ knitr::include_graphics("histogram.jpg", dpi=600)
 O resultado inicial reforça a segurança das vacinas contra a COVID-19 no cenário nacional, uma vez que não foi verificado aumento significativo de um conjunto de eventos de interesse para monitoramento (EAIE). No entanto, ainda são necessárias análises por subgrupos (sexo, faixa etária) para melhor caracterização da incidência EAIE com dados do SUS.
 
 \newpage
+
 # Análise espacial
 
 ## **Introdução**
 
-No dia 18 de janeiro de 2021 foi iniciada a Campanha Nacional de Vacinação contra a COVID-19 no Brasil [@ministériodasaúde.secretariaextraordináriadeenfrentamentoàcovid-192022]. Passado um ano do início da vacinação, verificou-se uma cobertura maior dos municípios com IDH (Índice de Desenvolvimento Humano) mais alto. Os componentes desse índice (longevidade, renda e escolaridade) naturalmente se associam à cobertura, pois a vacinação teve como um dos grupos prioritários a população de idosos, ainda assim, a distribuição geográfica da cobertura vacinal reflete um padrão de desigualdade normalmente observado na distribuição dos agravos de saúde. Foram observadas coberturas mais elevadas nas regiões Sul e Sudeste e bolsões com baixa imunização nas regiões Norte, Nordeste e Centro-Oeste [@fiocruz] 
+No dia 18 de janeiro de 2021 foi iniciada a Campanha Nacional de Vacinação contra a COVID-19 no Brasil [@ministériodasaúde.secretariaextraordináriadeenfrentamentoàcovid-192022]. Passado um ano do início da vacinação, verificou-se uma cobertura maior dos municípios com IDH (Índice de Desenvolvimento Humano) mais alto. Os componentes desse índice (longevidade, renda e escolaridade) naturalmente se associam à cobertura, pois a vacinação teve como um dos grupos prioritários a população de idosos, ainda assim, a distribuição geográfica da cobertura vacinal reflete um padrão de desigualdade normalmente observado na distribuição dos agravos de saúde. Foram observadas coberturas mais elevadas nas regiões Sul e Sudeste e bolsões com baixa imunização nas regiões Norte, Nordeste e Centro-Oeste [@fiocruz].
 
 Até o fim de 2022, haviam sido aplicadas mais de 504 milhões de doses das vacinas contra a COVID-19 em todo o país [@ministériodasaúde2023a]. Em fevereiro de 2023, o país apresentava uma cobertura vacinal de 86,0% para a primeira dose e de 77,8% para a segunda dose (esquema primário). Nesse momento, a cobertura era de 65,4% e 38,7% para a primeira e segunda doses de reforço respectivamente. No esquema básico, as faixas etárias que alcaçaram a meta de pelo menos 90% para a dose 1 foram a de 12 a 29 anos e a de 50 a 80 anos. Na dose 2, a meta foi atingida apenas na faixa etária de 50 a 80 anos. Quanto à distribuição espacial da cobertura no esquema vacinal primário, 2.612 municípios alcançaram a meta de 90% para a dose 1 e 1.899 para a dose 2 [@ministériodasaúde2023g].
 
 ## **Objetivos**
 
-- Analisar a distribuição da cobertura da primeira e segunda doses da vacina contra a COVID-19 nos municípios do Rio de Janeiro.
-- Verificar a importância do Índice de Desenvolvimento Humano (IDH) para explicar os nívels de cobertura vacinal no esquema primário para COVID-19 nos municípios do Rio de Janeiro.
+-   Analisar a distribuição da cobertura da primeira e segunda doses da vacina contra a COVID-19 nos municípios do Rio de Janeiro.
+-   Verificar a importância do Índice de Desenvolvimento Humano (IDH) para explicar os níveis de cobertura vacinal no esquema primário para COVID-19 nos municípios do Rio de Janeiro.
 
 ## **Métodos**
 
-Foi realizado um estudo ecológico a partir de dados que foram obtidos na página do Painel de Cobertura Vacinal COVID do Ministério da Saúde [@coberturavacinalms]. Esse estudo utilizou dados de cobertura por residência, que consideram as informações do endereço cadastrado no Cartão Nacional de Saúde (CNS) do cidadão [@SEI/MS0036724379].
+Foi realizado um estudo ecológico a partir de dados que foram obtidos na página do Painel de Cobertura Vacinal COVID do Ministério da Saúde [@coberturavacinalms] relativos a dezembro de 2023. Esse estudo utilizou dados de cobertura por residência, que consideram as informações do endereço cadastrado no Cartão Nacional de Saúde (CNS) do cidadão [@SEI/MS0036724379].
 
 A cobertura vacinal é calculada pelo Ministério da Saúde dividindo o número de indivíduos vacinados pelo número total de pessoas elegíveis para vacinação multiplicando por 100. No denominador são utilizadas as estimativas populacionais mais recentes publicadas pelo Instituto Brasileiro de Geografia e Estatística (IBGE) [@SEI/MS0036724379].
 
-Foi realizada análise exploratória aplicada a dados espaciais de área. Primeiramente foi elaborado o mapa temático com apresentação dos valores de cobertura vacinal organizados em categorias de intervalos iguais. 
+Foi realizada análise exploratória aplicada a dados espaciais de área. Primeiramente foi elaborado o mapa temático com apresentação dos valores de cobertura vacinal organizados em categorias de intervalos iguais.
 
 Na etapa seguinte, buscou-se identificar existência de estrutura de correlação espacial entre as áreas. Inicialmente foi obtido o Índice Global de Moran, que fornece um valor único para resumir a associação espacial de forma geral para todo o conjunto de dados. O índice I de Moran é uma medida de autocorrelação espacial que quantifica o grau em que valores semelhantes estão agrupados ou dispersos em um conjunto de dados espaciais.
 
@@ -697,7 +697,6 @@ conect_rj
 
 O índice Global de Moran foi de 0,2, indicando a presença de associação espacial positiva na cobertura vacinal para COVID-19 (doses 1 e 2) nos municípios do Rio de Janeiro (p-valor = 0,001). A autocorrelação espacial em diferentes distâncias ou intervalos de defasagem encontra-se disposta na @fig-Figura11. Os resultados do correlograma indicam baixa correlação positiva entre os municípios mais próximos e baixa correlação negativa quando os municípios se distanciam.
 
-
 ```{r Figura11, include=TRUE}
 #| label: fig-Figura11
 #| fig-cap: "Correlograma para a cobertura vacinal das doses 1 e 2 contra a COVID-19 por município do estado do Rio de Janeiro em dezembro de 2023."
@@ -707,11 +706,11 @@ knitr::include_graphics("correl_rj.jpg", dpi=600)
 
 ```
 
-A @fig-Figura12 ilustra os municípios que tiveram os p-valores mais significativos no Moran Local. O mapa temático Moran Local (Lisa Map) para a cobertura vacinal consta na @fig-Figura13. A relação desses resultados mostram que algumas áreas apresentam alta correlação espacial. O aglomerado de muncípios em vermelho sinaliza tendência de aumento da cobertura vacinal na medida que os vizinhos aumentam (Rio das Flores,Paraíba do Sul, Paty do Alferes, Vassouras, Engenheiro de Paulo Frontin, Mendes, Barra do Piraí, Volta Redonda e Barra Mansa). Também, observa-se que a capital do Rio de Janeiro tem uma cobertura relativamente mais baixa que seus vizinhos, mesmo tendo atingido a meta de cobertura (96,1%).
+A @fig-Figura12 ilustra os municípios que tiveram os p-valores mais significativos no Moran Local. O mapa temático Moran Local (Lisa Map) para a cobertura vacinal consta na @fig-Figura13. Esses resultados mostram que algumas áreas apresentam alta correlação espacial. O aglomerado de muncípios em vermelho sinaliza tendência de aumento da cobertura vacinal na medida que os vizinhos aumentam (Rio das Flores, Paraíba do Sul, Paty do Alferes, Vassouras, Engenheiro de Paulo Frontin, Mendes, Barra do Piraí, Volta Redonda e Barra Mansa). Também, observa-se que a capital do Rio de Janeiro tem uma cobertura relativamente mais baixa que seus vizinhos, mesmo tendo atingido a meta de cobertura (96,1%).
 
 ```{r Figura12, include=TRUE}
 #| label: fig-Figura12
-#| fig-cap: " Municípios com p-valores significativos no Moran Local para a cobertura vacinal das doses 1 e 2 contra a COVID-19."
+#| fig-cap: " Municípios do Rio de Janeiro com p-valores significativos no Moran Local para a cobertura vacinal das doses 1 e 2 contra a COVID-19."
 #| out-width: "80%"
 
 knitr::include_graphics("pv_rj.jpg", dpi=600)
@@ -726,6 +725,7 @@ knitr::include_graphics("pv_rj.jpg", dpi=600)
 moran_rj
 
 ```
+
 ```{r modelo}
 #IDH 2010 IBGE
 idh <- read.csv("IDH.csv")
@@ -893,29 +893,27 @@ res.gwr <- ggplot(rj.sf2) +
 
 #violino e mapa de residuos
 library(cowplot)
-map.res <- cowplot::plot_grid(res.gwr, viol, rows = 2)
+map.res <- cowplot::plot_grid(res.gwr, viol, cols = 2)
 ggsave("res_gwr_rj.jpg", map.res, dpi=300)
 
 ```
 
-A seguir, constam os resultados para a modelagem da cobertura vacinal contra a COVID-19 (doses 1 e 2) em função do IDH.A modelagem GWR ajusta uma regressão para cada ponto com a ponderação das demais observações em função da distância desse ponto. As variações espaciais são modeladas de forma contínua, com parâmetros variando no espaço. Assim, cada município possui seu próprio coeficiente que encontra-se representado espacialmente na @fig-Figura14 (a). No mapa temático, os maiores valores de coeficientes são marcados pelas tonalidade de rosa/laranja e os menores nos tons de verde. 
+Na sequência, constam os resultados para a modelagem da cobertura vacinal contra a COVID-19 (doses 1 e 2) em função do IDH. A modelagem GWR ajusta uma regressão para cada ponto com a ponderação das demais observações em função da distância desse ponto. As variações espaciais são modeladas de forma contínua, com parâmetros variando no espaço. Assim, cada município possui seu próprio coeficiente que encontra-se representado espacialmente na @fig-Figura14 (a). No mapa temático, os maiores valores de coeficientes são marcados pelas tonalidades de rosa/laranja e os menores nos tons de verde. Os coeficientes significativos (@fig-Figura14 (b)) indicam os locais onde a variável IDH é uma forte preditora da cobertura vacinal para COVID-19, que são Rio de Janeiro, São João de Meriti e Engenheiro Paulo Frontin.
 
-Os coeficientes significativos (@fig-Figura14 (b)) indicam os locais onde a variável IDH é uma forte preditora da cobertura vacinal para COVID-19, que são Rio de Janeiro, São João de Meriti e Engenheiro Paulo Frontin.
+De modo geral, o ajuste do modelo é fraco (Quasi-global R^2^: 0.35), O mapa temático para o R^2^ local consta na @fig-Figura15. Observa-se melhores ajustes nas áreas destacadas em rosa mais claro. Os valores observados e preditos indicam a baixa confiabilidade do modelo ajustado GWR (@fig-Figura16). 
 
 ```{r Figura14, include=TRUE}
 #| label: fig-Figura14
-#| fig-cap: "Resultados do modelo GWR. (a) Distribuição dos coeficientes do modelo GWR para a variável IDH. (b) Coeficientes para a variável IDH significativos segundo o teste de Wald."
+#| fig-cap: "Resultados do modelo GWR. (a) Distribuição dos coeficientes do modelo GWR para a variável IDH. (b) Coeficientes significativos para a variável IDH segundo o teste de Wald."
 #| out-width: "100%"
 
 knitr::include_graphics("gwr_rj.jpg", dpi=600)
 
 ```
 
-De modo geral, o ajuste do modelo é fraco (Quasi-global R2: 0.35). O mapa temático para o R2 local consta na @fig-Figura15. Observa-se melhores ajustes nas áreas destacadas em rosa mais claro. Os valores preditos e observados do modelo GWR ajustado encontra-se apresentado na @fig-Figura16.
-
 ```{r Figura15, include=TRUE}
 #| label: fig-Figura15
-#| fig-cap: "Resultados do modelo GWR. Mapa do coeficientes de determinação locais (R2 local)."
+#| fig-cap: "Resultados do modelo GWR. Mapa do coeficientes de determinação locais (R$^2$ local)."
 #| out-width: "80%"
 
 knitr::include_graphics("r2_rj.jpg", dpi=600)
@@ -931,8 +929,7 @@ knitr::include_graphics("pred_aj_rj.jpg", dpi=600)
 
 ```
 
-
-Quanto à adequação do modelo GWR, não se observa autocorrelação espacial nos resíduos (I= -0.01, p-valor=0.50) que parecem estar distribuídos espacialmente de forma aleatória (@fig-Figura17).
+Quanto à adequação do modelo GWR, não se observa autocorrelação espacial nos resíduos (I=-0.01, p-valor=0.50) que parecem estar distribuídos espacialmente de forma aleatória no mapa (@fig-Figura17).
 
 ```{r Figura17, include=TRUE}
 #| label: fig-Figura17
@@ -943,19 +940,20 @@ knitr::include_graphics("res_gwr_rj.jpg", dpi=600)
 
 ```
 
-
-
 ## **Discussão**
 
-\newpage
+A análise espacial da cobertura vacinal em nível municipal apresenta importantes limitações, isto porque nas faixas etárias mais jovens houve importantes fluxos de deslocamento para vacinação devido a calendários divergentes em municípios vizinhos. Esses deslocamentos chegaram a resultar em até 20% do total de doses aplicadas fora do município de residência dos vacinados [@monitoracovid-19-icict/fiocruz2021]. Assim, pode-se explicar o fato de alguns municípios do Rio de Janeiro apresentarem coberturas vacinais acima de 100%.
+
+De modo geral, a cobertura vacinal para as doses 1 e 2 das vacinas para a COVID-19 aparentemente possui baixa correlação espacial quando consideramos a divisão de áreas segundo os municípios do estado do Rio de Janeiro. Foram identificados poucos clusters onde essa associação é mais intensa. A relação entre IDH e cobertura vacinal já apontada no nível de regiões geográficas no Brasil[@fiocruz] não foi verificada nesse estudo. A relação se mostrou significativa apenas em dois dos 92 municípios do estado. Cabe ressaltar que esses coeficentes não foram interpretados devido à baixa confiabilidade do modelo. Para dar continuidade a essa análise, seria fundamental buscar outras variáveis que ajudem a explicar a cobertura vacinal para as primeiras doses das vacinas contra a COVID-19. 
 
 # **Referências**
 
-<div id="refs"></div>
+::: {#refs}
+:::
 
 \newpage
 
-# Anexo {-} 
+# Anexo {.unnumbered}
 
 ```{r cids, include = TRUE}
 library(kableExtra)
@@ -978,5 +976,3 @@ knitr::kable(ev_cid2, align = "ll", format = "latex", booktabs = TRUE, caption =
   kableExtra::kable_classic()
 
 ```
-
-
